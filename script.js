@@ -64,23 +64,19 @@
     rechne();
   }
 
-  // Kontaktformular: baut einen fertigen mailto-Link (kein Server nötig).
-  // Für den professionellen Einsatz einen Formulardienst einsetzen und
-  // diesen Handler entfernen – siehe README.
+  // Kontaktformular: Absenden bleibt auf der Seite (kein E-Mail-Programm
+  // öffnet sich mehr). Der HubSpot-Trackingcode (siehe <head>) erkennt dieses
+  // Formular automatisch ("Collected forms") und erfasst Absendungen als
+  // Kontakt im HubSpot-Portal. Bei Problemen bleibt die direkte
+  // E-Mail-Adresse im Kontaktbereich als Fallback bestehen.
   var form = document.getElementById('anfrage');
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var d = new FormData(form);
-      var betreff = 'Anfrage über die Website: ' + d.get('leistung');
-      var text = 'Name: ' + d.get('name') + '\n'
-        + 'Kontakt: ' + d.get('kontakt') + '\n'
-        + 'Thema: ' + d.get('leistung') + '\n\n'
-        + d.get('nachricht') + '\n';
-      window.location.href = 'mailto:pv@strom-macher.at?subject='
-        + encodeURIComponent(betreff) + '&body=' + encodeURIComponent(text);
       document.querySelector('.form-status').textContent =
-        'Euer E-Mail-Programm öffnet sich mit der fertigen Nachricht. Klappt das nicht, schreibt direkt an pv@strom-macher.at.';
+        'Danke! Eure Anfrage ist bei uns eingegangen – wir melden uns so schnell wie möglich. ' +
+        'Falls es einmal nicht klappt, schreibt uns direkt an pv@strom-macher.at.';
+      form.reset();
     });
   }
 })();
