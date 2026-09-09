@@ -1,0 +1,1062 @@
+/* ==========================================================================
+   strom-macher – Stylesheet
+   --------------------------------------------------------------------------
+   Aufbau:
+     1. Design-Tokens (Farben, Typo, Motion, Radien, Schatten)
+     2. Reset & Basis
+     3. Typografie
+     4. Hilfsklassen (Container, Reveal, sr-only)
+     5. Steuerelemente (Buttons, Pfeile, Dots)
+     6. Header & Navigation
+     7. Startbereich (Entrance)
+     8. Intro
+     9. Leistungen (Slider)
+    10. Ablauf
+    11. Team
+    12. Referenzen (Slider)
+    13. PV-Konfigurator-Banner
+    14. Kontakt
+    15. Footer
+    16. Rechtsseiten
+    17. Responsive
+    18. Bewegung reduzieren
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Design-Tokens
+   ========================================================================== */
+:root {
+  /* --- Neutrale Basis: warmes Papier gegen tiefe Tinte ------------------- */
+  --ink-900: #0E1116;
+  --ink-800: #161B23;
+  --ink-700: #242B36;
+  --ink-500: #59636F;   /* Sekundärtext, 5.9:1 auf Papier */
+  --ink-400: #767F8B;
+  --paper:   #FCFBF8;
+  --paper-2: #F4F2EC;
+  --paper-3: #E9E6DD;
+  --surface: #FFFFFF;
+  --footer-bg: #0A0C10;
+
+  /* --- Sparte 1: Verteilerumbau & Modernisierung (Azure) ---------------- */
+  --azure-bright: #3FB8F5;   /* Flächen, Grafik, Akzente auf Dunkel */
+  --azure-base:   #1487C9;   /* solide Akzente, Rahmen */
+  --azure-ink:    #0B5E8E;   /* Text auf hellem Grund, 6.8:1 */
+
+  /* --- Sparte 2: Photovoltaik & Ladeinfrastruktur (Grün) ---------------- */
+  --green-bright: #4FCB7C;
+  --green-base:   #13964B;
+  --green-ink:    #0B6B36;   /* 6.4:1 */
+
+  /* --- Sparte 3: Hauselektrik & Störungsdienst (Amber) ------------------ */
+  --amber-bright: #FFC94D;
+  --amber-base:   #E39A15;
+  --amber-ink:    #8A5A06;   /* 5.7:1 – ersetzt das frühere, unlesbare Gelb */
+
+  /* --- Signalrot: Blitz aus dem Logo, Akzentfarbe ----------------------- */
+  --red-bright: #F2604F;
+  --red-base:   #DC3E2C;
+  --red-ink:    #B32A1B;     /* 6.2:1 */
+
+  /* --- Semantische Zuweisungen ------------------------------------------ */
+  --fg:            var(--ink-800);
+  --fg-muted:      var(--ink-500);
+  --fg-on-dark:    var(--paper);
+  --bg:            var(--paper);
+  --accent:        var(--red-base);
+  --accent-text:   var(--red-ink);
+  --line:          rgba(14, 17, 22, .10);
+  --line-strong:   rgba(14, 17, 22, .18);
+  --focus-ring:    var(--red-base);
+  --focus-ring-on-dark: var(--amber-bright);
+
+  /* --- Radien ----------------------------------------------------------- */
+  --radius:    24px;
+  --radius-sm: 14px;
+  --radius-xs: 8px;
+
+  /* --- Schatten: geschichtet und warm getönt ---------------------------- */
+  --shadow-sm: 0 1px 2px rgba(14, 17, 22, .05);
+  --shadow-md: 0 1px 2px rgba(14, 17, 22, .05), 0 8px 20px -6px rgba(14, 17, 22, .10);
+  --shadow-lg: 0 1px 3px rgba(14, 17, 22, .06), 0 18px 44px -12px rgba(14, 17, 22, .16);
+  --shadow-xl: 0 2px 6px rgba(14, 17, 22, .06), 0 32px 70px -20px rgba(14, 17, 22, .22);
+
+  /* --- Typografie -------------------------------------------------------
+     Copperplate gibt es nur auf macOS. Ohne brauchbaren Fallback landeten
+     alle Überschriften unter Windows/Android bei "serif" (also Times) und
+     das Schriftbild der Marke war weg. Die Kette endet deshalb bewusst bei
+     einer breiten, glyphischen bzw. humanistischen Sans – in Versalien mit
+     Sperrung sieht das gewollt aus statt kaputt.
+     Für ein garantiert identisches Bild auf allen Geräten: eine woff2-Datei
+     unter assets/fonts/ ablegen und den @font-face-Block unten aktivieren.
+     -------------------------------------------------------------------- */
+  --font-heading:
+      Copperplate, "Copperplate Gothic Bold", "Copperplate Gothic Light",
+      "Perpetua Titling MT", Optima, Candara, "Trebuchet MS", "Segoe UI",
+      system-ui, sans-serif;
+  --font-body:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+
+  /* --- Motion -----------------------------------------------------------
+     Die eingebauten CSS-Kurven sind für UI zu weich. Diese drei haben mehr
+     Zug: ease-out für alles, was ein- oder ausblendet, ease-in-out für
+     Bewegung auf dem Bildschirm, drawer für iOS-artiges Gleiten.
+     -------------------------------------------------------------------- */
+  --ease-out:    cubic-bezier(.23, 1, .32, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
+
+  --dur-press:  130ms;   /* Druckfeedback */
+  --dur-fast:   180ms;   /* Hover, Farbwechsel */
+  --dur-menu:   220ms;   /* Mobilmenü öffnen */
+  --dur-menu-out: 150ms; /* Mobilmenü schließen – Austritt schneller */
+  --dur-slide:  360ms;   /* Slider-Wechsel */
+  --dur-reveal: 500ms;   /* Scroll-Reveal */
+
+  --header-h: 86px;      /* Mindesthöhe des Headers, rein aus dem CSS */
+  --header-offset: 86px; /* echte, gemessene Höhe – script.js schreibt sie */
+}
+
+/* Zum Selbsthosten der Markenschrift: woff2 nach assets/fonts/ legen,
+   diesen Block aktivieren und --font-heading auf "Marke", … umstellen.
+
+@font-face {
+  font-family: "Marke";
+  src: url("assets/fonts/marke.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+*/
+
+/* ==========================================================================
+   2. Reset & Basis
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  /* Die inaktiven Slides stehen 28px versetzt bereit; auf schmalen
+     Bildschirmen schob das die Seite nach rechts und man konnte quer
+     scrollen. clip statt hidden, weil clip keinen Scroll-Container
+     erzeugt und position: sticky im Header dadurch weiter funktioniert. */
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--fg);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img, picture, svg { max-width: 100%; display: block; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+
+/* Der Sticky-Header verdeckte bisher die Überschrift des Sprungziels. */
+[id] { scroll-margin-top: calc(var(--header-offset) + 24px); }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--ink-900);
+  color: var(--fg-on-dark);
+  padding: 14px 20px;
+  border-radius: 0 0 var(--radius-xs) 0;
+  font-weight: 700;
+}
+.skip-link:focus { left: 0; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.on-dark a:focus-visible,
+.on-dark button:focus-visible,
+.on-dark input:focus-visible,
+.on-dark select:focus-visible,
+.on-dark textarea:focus-visible {
+  outline-color: var(--focus-ring-on-dark);
+}
+
+::selection { background: var(--amber-bright); color: var(--ink-900); }
+
+/* ==========================================================================
+   3. Typografie
+   ========================================================================== */
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  line-height: 1.05;
+  margin: 0 0 18px;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+/* Deutsche Komposita sind lang. Die untere Grenze der clamp() muss klein
+   genug sein, dass "ANSPRECHPARTNER." auf 390px noch in die Zeile passt –
+   overflow-wrap ist die letzte Sicherung für "Zählerschrankmodernisierung". */
+h1 { font-size: clamp(2.2rem, 6vw, 5.6rem); max-width: 900px; }
+h2 { font-size: clamp(1.5rem, 6.2vw, 3.5rem); }
+h3 { font-size: 1.25rem; }
+h1, h2, h3 { overflow-wrap: break-word; }
+
+p { margin: 0 0 18px; text-wrap: pretty; }
+p:last-child { margin-bottom: 0; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: .78rem;
+  color: var(--accent-text);
+  margin-bottom: 14px;
+}
+.text-azure { color: var(--azure-ink); }
+.text-green { color: var(--green-ink); }
+.text-amber { color: var(--amber-ink); }
+
+.center { text-align: center; max-width: 820px; margin: 0 auto 44px; }
+
+/* ==========================================================================
+   4. Hilfsklassen
+   ========================================================================== */
+.container { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+.section-pad { padding: 96px 0; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Scroll-Reveal: kurz, ease-out, und die Verzögerung staffelt Gruppen
+   (30–80 ms zwischen Elementen; mehr fühlt sich träge an). */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity   var(--dur-reveal) var(--ease-out) var(--reveal-delay, 0ms),
+    transform var(--dur-reveal) var(--ease-out) var(--reveal-delay, 0ms);
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+.stagger > *:nth-child(1) { --reveal-delay: 0ms; }
+.stagger > *:nth-child(2) { --reveal-delay: 60ms; }
+.stagger > *:nth-child(3) { --reveal-delay: 120ms; }
+.stagger > *:nth-child(4) { --reveal-delay: 180ms; }
+
+/* ==========================================================================
+   5. Steuerelemente
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-weight: 800;
+  border: 1px solid transparent;
+  transition:
+    transform  var(--dur-press) var(--ease-out),
+    box-shadow var(--dur-fast)  var(--ease-out),
+    background-color var(--dur-fast) ease;
+}
+.btn-primary {
+  background: var(--ink-900);
+  color: var(--fg-on-dark);
+  box-shadow: var(--shadow-md);
+}
+.btn-accent {
+  background: var(--green-bright);
+  color: var(--ink-900);
+  box-shadow: var(--shadow-md);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+}
+/* Nichts fühlt sich so tot an wie ein Button, der beim Drücken stillsteht. */
+.btn:active { transform: scale(.97); }
+
+/* Slider-Pfeile: 44px Trefferfläche, SVG statt ‹ › – die Glyphen sehen je
+   nach Plattform völlig anders aus. */
+.arrow {
+  position: relative;
+  z-index: 3;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-800);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform  var(--dur-press) var(--ease-out),
+    box-shadow var(--dur-fast)  var(--ease-out),
+    background-color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+.arrow svg { width: 20px; height: 20px; }
+@media (hover: hover) and (pointer: fine) {
+  .arrow:hover {
+    background: var(--ink-900);
+    border-color: var(--ink-900);
+    color: var(--fg-on-dark);
+    box-shadow: var(--shadow-md);
+  }
+}
+.arrow:active { transform: scale(.94); }
+
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+.dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-radius: 50%;
+  border: 0;
+  background: var(--line-strong);
+  transition:
+    transform        var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) ease;
+}
+/* Optisch 10px, anfassbar 44px. */
+.dot::before {
+  content: "";
+  position: absolute;
+  inset: -17px;
+  border-radius: 50%;
+}
+.dot[aria-current="true"] { background: var(--ink-900); transform: scale(1.35); }
+@media (hover: hover) and (pointer: fine) {
+  .dot:hover { background: var(--ink-700); }
+}
+.dot:active { transform: scale(1.1); }
+
+/* ==========================================================================
+   6. Header & Navigation
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(252, 251, 248, .88);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid transparent;
+  transition:
+    border-color var(--dur-fast) ease,
+    box-shadow   var(--dur-fast) ease;
+}
+/* Kleines, unbemerktes Detail: die Kante erscheint erst, wenn wirklich
+   etwas darunter weggescrollt ist. */
+.site-header[data-scrolled] {
+  border-bottom-color: var(--line);
+  box-shadow: 0 1px 0 rgba(14, 17, 22, .04), 0 10px 30px -18px rgba(14, 17, 22, .35);
+}
+
+.nav {
+  width: min(1160px, calc(100% - 40px));
+  min-height: var(--header-h);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand-group { display: flex; align-items: center; gap: 18px; }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.brand-spins { display: flex; align-items: center; gap: 20px; }
+.header-spin-link {
+  position: relative;
+  width: clamp(32px, 3.6vw, 40px);
+  height: clamp(32px, 3.6vw, 40px);
+  border-radius: 50%;
+  background: var(--ring);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .5),
+    0 4px 12px -2px rgba(14, 17, 22, .18);
+  transition:
+    transform  var(--dur-press) var(--ease-out),
+    box-shadow var(--dur-fast)  var(--ease-out);
+}
+/* 44px Trefferfläche, ohne den Kreis optisch zu vergrößern. */
+.header-spin-link::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+}
+.spin-ring-green { --ring: var(--green-bright); }
+.spin-ring-amber { --ring: var(--amber-bright); }
+.spin-ring-azure { --ring: var(--azure-bright); }
+@media (hover: hover) and (pointer: fine) {
+  .header-spin-link:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, .6),
+      0 10px 22px -4px rgba(14, 17, 22, .26);
+  }
+}
+.header-spin-link:active { transform: scale(.94); }
+/* Zeigt an, in welchem Referenzen-Bereich man gerade ist. */
+.header-spin-link[data-current] {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .6),
+    0 0 0 3px var(--paper),
+    0 0 0 5px var(--ring);
+}
+/* Die Animation ist breiter als der Kreis. Mit place-items: center schob
+   Grid das zu große Element an den Anfang statt es zu zentrieren – es saß
+   dadurch sichtbar rechts. Absolut positioniert und per transform zentriert
+   ist die Mitte exakt die Mitte, unabhängig von Alignment-Eigenheiten. */
+.brand-spin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+  flex-shrink: 0;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  font-weight: 650;
+}
+.nav-menu a {
+  color: rgba(14, 17, 22, .78);
+  transition: color var(--dur-fast) ease;
+}
+.nav-menu a:hover { color: var(--ink-900); }
+.nav-cta {
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--ink-900);
+  color: var(--fg-on-dark) !important;
+  transition:
+    transform  var(--dur-press) var(--ease-out),
+    box-shadow var(--dur-fast)  var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+}
+.nav-cta:active { transform: scale(.97); }
+
+.nav-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  align-content: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--ink-900);
+  border-radius: 2px;
+  transition:
+    transform var(--dur-menu) var(--ease-out),
+    opacity   var(--dur-menu-out) var(--ease-out);
+}
+.nav-toggle span + span { margin-top: 5px; }
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; transform: scaleX(.4); }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ==========================================================================
+   7. Startbereich (Entrance)
+   ========================================================================== */
+.entrance {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(120% 90% at 50% -10%, var(--surface), rgba(255, 255, 255, 0) 60%),
+    var(--paper-2);
+  padding: 76px 5vw 68px;
+  border-bottom: 1px solid var(--line);
+  --entrance-logo-size: 240px;
+}
+
+.entrance-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: min(10vw, 110px);
+  position: relative;
+  z-index: 1;
+}
+
+.entrance-photo {
+  width: min(50vw, 480px);
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  flex-shrink: 0;
+  background: var(--paper-3);
+}
+.entrance-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+.entrance-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--entrance-logo-size);
+  height: var(--entrance-logo-size);
+  flex-shrink: 0;
+}
+.entrance-logo picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.entrance-logo-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.entrance-depts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  margin-top: 40px;
+}
+.dept {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-size: clamp(1.25rem, 3.4vw, 2.4rem);
+  line-height: 1.15;
+}
+/* Vorher standen hier die hellen Logo-Farben – Gelb auf Papier kam auf
+   1.18:1 und war praktisch unsichtbar. Jetzt die textfähigen Varianten. */
+.dept-green { color: var(--green-ink); }
+.dept-amber { color: var(--amber-ink); }
+.dept-azure { color: var(--azure-ink); }
+
+/* Einmalige Bewegung beim ersten Aufruf – hier ist Delight erlaubt, weil
+   niemand diesen Moment zwanzig Mal am Tag sieht. Nie aus scale(0):
+   nichts in der echten Welt taucht aus dem Nichts auf. */
+@media (prefers-reduced-motion: no-preference) {
+  .entrance-photo,
+  .entrance-logo,
+  .entrance-depts .dept {
+    animation: entrance-in 620ms var(--ease-out) both;
+  }
+  .entrance-logo { animation-delay: 80ms; }
+  .entrance-depts .dept:nth-child(1) { animation-delay: 200ms; }
+  .entrance-depts .dept:nth-child(2) { animation-delay: 260ms; }
+  .entrance-depts .dept:nth-child(3) { animation-delay: 320ms; }
+}
+@keyframes entrance-in {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   8. Intro
+   ========================================================================== */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; }
+.intro-text { font-size: 1.2rem; color: var(--fg-muted); }
+
+/* ==========================================================================
+   9. Leistungen
+   ========================================================================== */
+.services { background: var(--paper-2); }
+
+/* Ein Slider-Layout für Leistungen und Referenzen: Pfeile flankieren die
+   Bahn, Dots darunter. Auf schmalen Bildschirmen rutschen die Pfeile über
+   Grid-Areas als Paar unter die Bahn – ohne zusätzliches Markup. */
+.slider {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "prev track next"
+    "dots dots dots";
+  gap: 16px;
+  align-items: center;
+  margin-top: 10px;
+}
+.slider > .prev  { grid-area: prev; }
+.slider > .next  { grid-area: next; }
+.slider > .track { grid-area: track; }
+.slider > .slider-dots { grid-area: dots; }
+
+.track { position: relative; }
+.service-track { min-height: 470px; }
+
+/* Slides liegen absolut übereinander und blenden über. Richtung:
+   "weiter" lässt das neue Panel von rechts kommen und das alte nach links
+   gehen – bei "zurück" spiegelverkehrt. Ohne das sehen Vor und Zurück
+   identisch aus und das Wischen verliert seinen Sinn. */
+.slide-item {
+  /* Versatz mitskalieren, damit er auf schmalen Bildschirmen in die
+     Seitenspalte passt und die Seite nicht nach rechts schiebt. */
+  --x: clamp(12px, 2vw, 28px);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateX(var(--x)) scale(.99);
+  transition:
+    opacity   var(--dur-slide) var(--ease-out),
+    transform var(--dur-slide) var(--ease-out),
+    filter    var(--dur-slide) var(--ease-out);
+  pointer-events: none;
+}
+.slide-item.active {
+  --x: 0px;
+  opacity: 1;
+  transform: none;
+  filter: none;
+  pointer-events: auto;
+}
+[data-dir="prev"] .slide-item { --x: clamp(-28px, -2vw, -12px); }
+.slide-item.leaving { --x: clamp(-28px, -2vw, -12px); }
+[data-dir="prev"] .slide-item.leaving { --x: clamp(12px, 2vw, 28px); }
+
+/* Beim Überblenden sieht man sonst zwei getrennte Karten übereinander.
+   Ein Hauch Blur verklebt die Zustände zu einer Bewegung. */
+@media (min-width: 720px) and (prefers-reduced-motion: no-preference) {
+  .slide-item:not(.active) { filter: blur(2px); }
+}
+
+.service-slide {
+  display: grid;
+  grid-template-columns: 1.08fr .92fr;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--line);
+  border-top-width: 10px;
+  border-top-style: solid;
+}
+.service-azure { border-top-color: var(--azure-base); }
+.service-green { border-top-color: var(--green-base); }
+.service-amber { border-top-color: var(--amber-base); }
+.service-azure h3 { color: var(--azure-ink); }
+.service-green h3 { color: var(--green-ink); }
+.service-amber h3 { color: var(--amber-ink); }
+
+.media {
+  position: relative;
+  overflow: hidden;
+  background: var(--paper-3);
+}
+.media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-badge {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .9);
+  backdrop-filter: blur(8px);
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--ink-900);
+  box-shadow: var(--shadow-md);
+}
+
+/* Platzhaltermuster für die Sparten ohne eigene Fotos. */
+.media-pattern-azure,
+.media-pattern-amber {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .07) 0 1px, rgba(0, 0, 0, 0) 1px 28px),
+    repeating-linear-gradient(0deg,  rgba(255, 255, 255, .07) 0 1px, rgba(0, 0, 0, 0) 1px 28px),
+    radial-gradient(130% 110% at 18% 0%, var(--tint), rgba(0, 0, 0, 0) 62%),
+    linear-gradient(160deg, #1D2733, var(--ink-900) 72%);
+}
+.media-pattern-azure { --tint: rgba(63, 184, 245, .5); }
+.media-pattern-amber { --tint: rgba(255, 201, 77, .42); }
+
+.service-copy {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* balance bzw. pretty schieben bei "Verteilerumbau & Modernisierung" das
+   Ampersand in eine eigene Zeile. Hier soll gierig umgebrochen werden; im
+   HTML hängt zusätzlich ein geschütztes Leerzeichen hinter dem "&", damit
+   es immer mit dem folgenden Wort zusammenbleibt. */
+.service-copy h3 {
+  font-size: clamp(1.9rem, 2.9vw, 2.8rem);
+  margin-bottom: 16px;
+  text-wrap: normal;
+}
+.service-copy p { color: var(--fg-muted); font-size: 1.08rem; }
+.service-copy ul {
+  margin: 22px 0 0;
+  padding-left: 20px;
+  color: var(--fg-muted);
+  display: grid;
+  gap: 9px;
+}
+.service-copy li::marker { color: var(--accent); }
+
+/* ==========================================================================
+   10. Ablauf
+   ========================================================================== */
+.process { background: var(--ink-900); color: var(--fg-on-dark); }
+.process .eyebrow { color: var(--amber-bright); }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.step {
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, .05);
+}
+.step span {
+  display: block;
+  color: var(--amber-bright);
+  font-weight: 900;
+  letter-spacing: .18em;
+  margin-bottom: 10px;
+}
+.step p { color: rgba(252, 251, 248, .7); }
+
+/* ==========================================================================
+   11. Team
+   ========================================================================== */
+.team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+.team .section-heading p:not(.eyebrow) { color: var(--fg-muted); font-size: 1.15rem; }
+.team-photo {
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--line);
+  background: var(--paper-3);
+}
+.team-photo img { width: 100%; height: 420px; object-fit: cover; object-position: center; }
+
+/* ==========================================================================
+   12. Referenzen
+   ========================================================================== */
+.references { background: linear-gradient(180deg, var(--paper), var(--paper-2)); }
+.ref-track { min-height: 430px; }
+.ref-card {
+  display: grid;
+  grid-template-columns: 1.35fr .75fr;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--line);
+}
+.ref-copy {
+  padding: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ref-copy h3 { text-wrap: normal; }
+.ref-copy p { color: var(--fg-muted); font-size: 1.06rem; }
+.refs-azure .ref-copy h3 { color: var(--azure-ink); }
+.refs-amber .ref-copy h3 { color: var(--amber-ink); }
+.placeholder-note {
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: .86rem;
+  margin: 18px 0 0;
+}
+
+/* ==========================================================================
+   13. PV-Konfigurator-Banner
+   ========================================================================== */
+.configurator-banner {
+  background: var(--ink-900);
+  color: var(--fg-on-dark);
+  padding: 48px 0;
+}
+.configurator-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.configurator-text h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); margin: 0 0 8px; }
+.configurator-text p { margin: 0; color: rgba(252, 251, 248, .72); max-width: 520px; }
+.configurator-btn { white-space: nowrap; flex-shrink: 0; }
+
+/* ==========================================================================
+   14. Kontakt
+   ========================================================================== */
+.contact { background: var(--ink-900); color: var(--fg-on-dark); }
+.contact .eyebrow { color: var(--amber-bright); }
+.contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 54px; align-items: start; }
+.contact .section-heading p:not(.eyebrow) { color: rgba(252, 251, 248, .72); font-size: 1.14rem; }
+.contact-details { display: grid; gap: 10px; margin-top: 26px; justify-items: start; }
+.contact-details a {
+  color: var(--amber-bright);
+  font-weight: 800;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) ease;
+}
+.contact-details a:hover { border-bottom-color: currentColor; }
+
+.contact-form {
+  background: var(--surface);
+  color: var(--fg);
+  padding: 28px;
+  border-radius: var(--radius);
+  display: grid;
+  gap: 16px;
+}
+.contact-form label { display: grid; gap: 8px; font-weight: 700; font-size: .95rem; }
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  background: var(--surface);
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+}
+.contact-form textarea { resize: vertical; min-height: 120px; }
+.contact-form input:focus-visible,
+.contact-form select:focus-visible,
+.contact-form textarea:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(220, 62, 44, .22);
+}
+.form-note { color: var(--fg-muted); font-size: .88rem; margin: 0; }
+.form-status {
+  margin: 0;
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--green-ink);
+  min-height: 1.4em;
+}
+
+/* ==========================================================================
+   15. Footer
+   ========================================================================== */
+.footer { padding: 34px 0; background: var(--footer-bg); color: var(--fg-on-dark); }
+.footer-grid { display: flex; justify-content: space-between; gap: 24px; align-items: center; }
+.footer p { margin: 6px 0 0; color: rgba(252, 251, 248, .66); }
+.footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+.footer-links a { color: rgba(252, 251, 248, .74); transition: color var(--dur-fast) ease; }
+.footer-links a:hover { color: var(--paper); }
+
+/* ==========================================================================
+   16. Rechtsseiten
+   ========================================================================== */
+.legal { padding: 64px 0 96px; max-width: 760px; }
+.legal h1 { font-size: clamp(2rem, 4vw, 2.8rem); }
+.legal h2 { font-size: 1.25rem; margin-top: 40px; }
+.legal p, .legal li { color: var(--fg-muted); }
+.legal a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.todo {
+  background: #FDF3D8;
+  border: 1px dashed var(--amber-base);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin: 8px 0 24px;
+  font-size: .92rem;
+  color: var(--ink-800);
+}
+
+/* ==========================================================================
+   17. Responsive
+   ========================================================================== */
+@media (max-width: 900px) {
+  :root { --header-h: 76px; --header-offset: 76px; }
+
+  .nav-toggle { display: grid; }
+  .nav-menu {
+    position: fixed;
+    top: var(--header-offset);
+    left: 20px;
+    right: 20px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 14px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-xl);
+    /* Öffnet aus der Ecke, in der der Button sitzt – nicht aus der Mitte. */
+    transform-origin: top right;
+    opacity: 0;
+    transform: scale(.96) translateY(-8px);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity    var(--dur-menu-out) var(--ease-out),
+      transform  var(--dur-menu-out) var(--ease-out),
+      visibility 0s linear var(--dur-menu-out);
+  }
+  .nav-menu.open {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity    var(--dur-menu) var(--ease-out),
+      transform  var(--dur-menu) var(--ease-out),
+      visibility 0s;
+  }
+  .nav-menu a { padding: 12px 10px; border-radius: var(--radius-sm); }
+  .nav-menu .nav-cta { text-align: center; margin-top: 6px; }
+
+  /* Rechtsseiten haben nur einen Zurück-Link und keinen Menü-Button –
+     der bleibt auch mobil einfach stehen. */
+  .nav-menu-static {
+    position: static;
+    flex-direction: row;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .nav-menu-static a { padding: 0; }
+
+  .split, .team-grid, .contact-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .section-pad { padding: 72px 0; }
+
+  /* Pfeile wandern unter die Bahn und stehen mittig als Paar. */
+  .slider {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "track track"
+      "prev  next"
+      "dots  dots";
+  }
+  .slider > .prev { justify-self: end; }
+  .slider > .next { justify-self: start; }
+  .slider > .slider-dots { margin-top: 4px; }
+
+  .service-slide, .ref-card { grid-template-columns: 1fr; }
+  .service-track { min-height: 700px; }
+  .ref-track { min-height: 520px; }
+  .service-slide .media { min-height: 280px; }
+  .ref-card .media { min-height: 260px; }
+
+  .team-photo img { height: 320px; }
+  .footer-grid { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 700px) {
+  .entrance { padding: 48px 6vw 44px; --entrance-logo-size: 170px; }
+  .entrance-row { flex-direction: column-reverse; gap: 22px; }
+  .entrance-photo { width: min(78vw, 340px); }
+  .entrance-depts { margin-top: 14px; }
+  .configurator-inner { flex-direction: column; align-items: flex-start; }
+  .configurator-btn { width: 100%; }
+}
+
+@media (max-width: 560px) {
+  .container, .nav { width: min(100% - 28px, 1160px); }
+  .nav-menu { left: 14px; right: 14px; }
+  .brand span { font-size: .98rem; }
+  .service-copy, .ref-copy { padding: 28px; }
+  .service-copy h3 { font-size: clamp(1.4rem, 6.4vw, 1.9rem); }
+  .service-track { min-height: 760px; }
+}
+
+@media (max-width: 460px) {
+  .brand-group { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .brand-spins { gap: 14px; }
+}
+
+/* ==========================================================================
+   18. Bewegung reduzieren
+   --------------------------------------------------------------------------
+   "Weniger und sanfter", nicht "gar nichts": Deckkraft und Farbe helfen beim
+   Verstehen und bleiben, Bewegung und Verschiebung fallen weg.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .reveal { transform: none; transition: opacity 200ms ease; }
+  .reveal.visible { opacity: 1; }
+
+  .slide-item { transform: none; filter: none; transition: opacity 200ms ease; }
+  .slide-item.active, .slide-item.leaving { transform: none; }
+
+  .btn:hover, .btn:active,
+  .arrow:hover, .arrow:active,
+  .nav-cta:hover, .nav-cta:active,
+  .header-spin-link:hover, .header-spin-link:active,
+  .dot:active {
+    transform: none;
+  }
+  .nav-menu { transition: opacity 150ms ease, visibility 0s linear 150ms; transform: none; }
+  .nav-menu.open { transition: opacity 150ms ease, visibility 0s; transform: none; }
+  .nav-toggle span { transition: opacity 120ms ease; }
+}
