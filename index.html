@@ -285,17 +285,20 @@
         <form class="form" id="anfrage">
           <div class="form-row">
             <label for="f-name">Name<input id="f-name" name="name" type="text" autocomplete="name" required /></label>
-            <label for="f-kontakt">Telefon oder E-Mail<input id="f-kontakt" name="kontakt" type="text" autocomplete="email" required /></label>
+            <label for="f-email">E-Mail<input id="f-email" name="email" type="email" autocomplete="email" required /></label>
           </div>
-          <label for="f-leistung">Worum geht es?
-            <select id="f-leistung" name="leistung">
-              <option>Photovoltaik, Speicher, Wallbox</option>
-              <option>Verteiler oder Zählerschrank</option>
-              <option>Hauselektrik, Erweiterung</option>
-              <option>Störung – es ist dringend</option>
-              <option>Etwas anderes</option>
-            </select>
-          </label>
+          <div class="form-row">
+            <label for="f-telefon">Telefonnummer <span class="optional">(optional)</span><input id="f-telefon" name="telefon" type="tel" autocomplete="tel" placeholder="+43 664 …" /></label>
+            <label for="f-leistung">Worum geht es?
+              <select id="f-leistung" name="leistung">
+                <option>Photovoltaik, Speicher, Wallbox</option>
+                <option>Verteiler oder Zählerschrank</option>
+                <option>Hauselektrik, Erweiterung</option>
+                <option>Störung – es ist dringend</option>
+                <option>Etwas anderes</option>
+              </select>
+            </label>
+          </div>
           <label for="f-nachricht">Kurz zur Sache
             <textarea id="f-nachricht" name="nachricht" rows="5" placeholder="Baujahr, was geplant ist, was schiefgeht – zwei Sätze reichen." required></textarea>
           </label>

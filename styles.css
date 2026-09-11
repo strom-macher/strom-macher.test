@@ -170,6 +170,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 .form{background:var(--ink-800);border:1px solid rgba(252,251,248,.10);border-radius:22px;padding:32px;display:flex;flex-direction:column;gap:18px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form label{display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:rgba(252,251,248,.66)}
+.form label .optional{font-weight:400;opacity:.6;text-transform:none}
 .form input,.form select,.form textarea{padding:13px 14px;border-radius:12px;border:1px solid rgba(252,251,248,.16);background:var(--ink-900);color:var(--paper);font-size:15.5px}
 .form textarea{resize:vertical}
 .form input:focus-visible,.form select:focus-visible,.form textarea:focus-visible{outline:2px solid var(--amber-bright);outline-offset:2px}
