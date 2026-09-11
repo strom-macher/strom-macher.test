@@ -133,7 +133,7 @@
         <div class="dark-copy">
           <p class="eyebrow eyebrow-green">Überschlag in 20 Sekunden</p>
           <h2>Rechnet sich das bei uns?</h2>
-          <p>Tastet euch mit den drei Reglern an eure Anlage heran – kein Formular, keine E-Mail-Adresse nötig. Für die genaue Planung nutzt danach unseren PV-Konfigurator.</p>
+          <p>Tastet euch an eure Anlage heran – kein Formular, keine E-Mail-Adresse nötig. Für die genaue Planung nutzt danach unseren PV-Konfigurator.</p>
           <a class="btn btn-dark" href="https://strom-macher.solarmaker.com/projects/9b92f699-089c-46e7-820a-1fc21862ee5c" target="_blank" rel="noopener noreferrer">Genauer planen im PV-Konfigurator →</a>
         </div>
 
@@ -222,10 +222,6 @@
         <article class="card">
           <picture><source type="image/webp" srcset="assets/ref-stoerung-kabel-angebohrt.webp" /><img src="assets/ref-stoerung-kabel-angebohrt.jpg" alt="Beim Bohren angebohrtes Kabel in einem Leerrohr" width="1400" height="1050" loading="lazy" decoding="async" /></picture>
           <div class="card-meta"><span class="card-kicker kicker-amber">Angebohrtes Kabel</span></div>
-        </article>
-        <article class="card">
-          <picture><source type="image/webp" srcset="assets/ref-stoerung-kabel-dachhaut.webp" /><img src="assets/ref-stoerung-kabel-dachhaut.jpg" alt="Kabelverlegung in Leerrohren in der Dachhaut" width="1400" height="1050" loading="lazy" decoding="async" /></picture>
-          <div class="card-meta"><span class="card-kicker kicker-amber">Kabelverlegung · Dachhaut</span></div>
         </article>
       </div>
     </div>
@@ -326,6 +322,43 @@
   </div>
 </footer>
 
+<div class="cookie-banner" id="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie-Hinweis" hidden>
+  <div class="cookie-banner-inner">
+    <p>Wir verwenden Cookies, um unsere Website nutzerfreundlich zu gestalten und künftig auch für Werbezwecke (z.&nbsp;B. Meta- und Google-Anzeigen). Details dazu finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+    <div class="cookie-banner-actions">
+      <button type="button" class="cookie-btn cookie-btn-decline" id="cookie-decline">Nur notwendige</button>
+      <button type="button" class="cookie-btn cookie-btn-accept" id="cookie-accept">Alle akzeptieren</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.cookie-banner{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--ink-900,#0E1116);color:var(--paper,#FCFBF8);padding:18px 20px;box-shadow:0 -8px 30px -10px rgba(0,0,0,.4)}
+.cookie-banner[hidden]{display:none}
+.cookie-banner-inner{width:min(1160px,calc(100% - 40px));margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.cookie-banner-inner p{margin:0;flex:1 1 380px;font-size:14px;line-height:1.55;color:rgba(252,251,248,.82)}
+.cookie-banner-inner a{color:var(--amber-bright,#FFC94D);text-decoration:underline;text-underline-offset:2px}
+.cookie-banner-actions{display:flex;gap:10px;flex-wrap:wrap}
+.cookie-btn{border:none;border-radius:99px;padding:12px 20px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.cookie-btn-decline{background:transparent;border:1px solid rgba(252,251,248,.3);color:var(--paper,#FCFBF8)}
+.cookie-btn-accept{background:var(--green-bright,#4FCB7C);color:var(--ink-900,#0E1116)}
+@media (max-width:560px){.cookie-banner-inner{flex-direction:column;align-items:stretch}.cookie-banner-actions{justify-content:stretch}.cookie-btn{flex:1}}
+</style>
+
 <script src="script.js" defer></script>
+<script>
+(function(){
+  try{
+    var KEY='sm_cookie_consent';
+    var banner=document.getElementById('cookie-banner');
+    if(!banner) return;
+    if(!localStorage.getItem(KEY)){ banner.hidden=false; }
+    var accept=document.getElementById('cookie-accept');
+    var decline=document.getElementById('cookie-decline');
+    if(accept) accept.addEventListener('click', function(){ localStorage.setItem(KEY,'accepted'); banner.hidden=true; });
+    if(decline) decline.addEventListener('click', function(){ localStorage.setItem(KEY,'declined'); banner.hidden=true; });
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
