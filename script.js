@@ -64,19 +64,15 @@
     rechne();
   }
 
-  // Kontaktformular: Absenden bleibt auf der Seite (kein E-Mail-Programm
-  // öffnet sich mehr). Der HubSpot-Trackingcode (siehe <head>) erkennt dieses
-  // Formular automatisch ("Collected forms") und erfasst Absendungen als
-  // Kontakt im HubSpot-Portal. Bei Problemen bleibt die direkte
-  // E-Mail-Adresse im Kontaktbereich als Fallback bestehen.
+  // Kontaktformular: Beim Absenden geht es direkt zur HubSpot-Landingpage
+  // weiter (echtes, natives HubSpot-Formular dort – legt zuverlässig einen
+  // Kontakt im CRM an, inkl. DSGVO-Einwilligung). Die lokalen Felder hier
+  // dienen nur der Vorschau; die eigentliche Übermittlung passiert drüben.
   var form = document.getElementById('anfrage');
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      document.querySelector('.form-status').textContent =
-        'Danke! Eure Anfrage ist bei uns eingegangen – wir melden uns so schnell wie möglich. ' +
-        'Falls es einmal nicht klappt, schreibt uns direkt an pv@strom-macher.at.';
-      form.reset();
+      window.location.href = 'https://149291029.hs-sites-eu1.com/angebot';
     });
   }
 })();

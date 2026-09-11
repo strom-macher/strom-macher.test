@@ -189,7 +189,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 .dark :focus-visible{outline-color:var(--amber-bright)}
 
 /* Hover nur auf echten Zeigergeräten */
-@media (hover:none){.call:hover,.btn:hover,.tab:hover{background:inherit}}
+@media (hover:none){.call:hover,.btn:hover{background:inherit}}
 
 /* Responsive */
 @media (max-width:1000px){
