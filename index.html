@@ -1,6 +1,25 @@
 <!doctype html>
 <html lang="de">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6E629WEGM2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  (function(){
+    var granted = false;
+    try { granted = localStorage.getItem('sm_cookie_consent') === 'accepted'; } catch(e){}
+    gtag('consent', 'default', {
+      'ad_storage': granted ? 'granted' : 'denied',
+      'ad_user_data': granted ? 'granted' : 'denied',
+      'ad_personalization': granted ? 'granted' : 'denied',
+      'analytics_storage': granted ? 'granted' : 'denied',
+      'wait_for_update': 500
+    });
+  })();
+  gtag('config', 'G-6E629WEGM2');
+</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>strom-macher | Erst der Verteiler. Dann die Sonne.</title>
@@ -355,7 +374,18 @@
     if(!localStorage.getItem(KEY)){ banner.hidden=false; }
     var accept=document.getElementById('cookie-accept');
     var decline=document.getElementById('cookie-decline');
-    if(accept) accept.addEventListener('click', function(){ localStorage.setItem(KEY,'accepted'); banner.hidden=true; });
+    if(accept) accept.addEventListener('click', function(){
+      localStorage.setItem(KEY,'accepted');
+      banner.hidden=true;
+      if(typeof gtag === 'function'){
+        gtag('consent', 'update', {
+          'ad_storage': 'granted',
+          'ad_user_data': 'granted',
+          'ad_personalization': 'granted',
+          'analytics_storage': 'granted'
+        });
+      }
+    });
     if(decline) decline.addEventListener('click', function(){ localStorage.setItem(KEY,'declined'); banner.hidden=true; });
   }catch(e){}
 })();
