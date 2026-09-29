@@ -1,3 +1,5 @@
+/* Outfit selbst gehostet (SIL OFL 1.1) – keine Verbindung zu Google */
+@font-face{font-family:"Outfit";font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/outfit-700.woff2") format("woff2")}
 /* strom-macher – Rework 2026
    Papier/Tinte + drei Spartenfarben, roter Blitz als Akzent. */
 :root{
@@ -183,7 +185,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 .footer-inner{max-width:1180px;margin:0 auto;padding:36px 24px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between}
 .footer-brand{display:flex;align-items:center;gap:12px;font-size:14px}
 .footer-brand img{width:25px;height:auto}
-.footer-links{display:flex;gap:24px;font-size:14px}
+.footer-links{display:flex;flex-wrap:wrap;gap:12px 24px;font-size:14px}
 .footer-links a{color:rgba(252,251,248,.6)}
 .footer-links a:hover{color:var(--paper)}
 
