@@ -60,7 +60,6 @@
 }
 </script>
 
-<script type="text/javascript" id="hs-script-loader" async defer src="https://js-eu1.hs-scripts.com/149291029.js"></script>
 </head>
 <body>
 <a class="sr-only" href="#main">Zum Inhalt springen</a>
@@ -174,6 +173,7 @@
       <a href="datenschutz.html">Datenschutz</a>
       <a href="https://www.instagram.com/strom_macher.official/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://www.facebook.com/profile.php?id=61579728248005" target="_blank" rel="noopener">Facebook</a>
+      <button type="button" data-cookie-settings>Cookie-Einstellungen</button>
       <a href="index.html">Startseite</a>
     </div>
   </div>
@@ -182,7 +182,7 @@
 <script src="script.js" defer></script>
 <div class="cookie-banner" id="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie-Hinweis" hidden>
   <div class="cookie-banner-inner">
-    <p>Wir verwenden Cookies, um unsere Website nutzerfreundlich zu gestalten und künftig auch für Werbezwecke (z.&nbsp;B. Meta- und Google-Anzeigen). Details dazu finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+    <p>Wir verwenden notwendige Cookies für den Betrieb der Website. Mit „Alle akzeptieren“ erlauben Sie zusätzlich Statistik- und Marketing-Cookies (Google Analytics, HubSpot). Ihre Auswahl können Sie jederzeit unter „Cookie-Einstellungen“ im Fußbereich ändern. Details dazu finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
     <div class="cookie-banner-actions">
       <button type="button" class="cookie-btn cookie-btn-decline" id="cookie-decline">Nur notwendige</button>
       <button type="button" class="cookie-btn cookie-btn-accept" id="cookie-accept">Alle akzeptieren</button>
@@ -193,6 +193,8 @@
 <style>
 .cookie-banner{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--ink-900,#0E1116);color:var(--paper,#FCFBF8);padding:18px 20px;box-shadow:0 -8px 30px -10px rgba(0,0,0,.4)}
 .cookie-banner[hidden]{display:none}
+.footer-links button[data-cookie-settings]{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
+.footer-links button[data-cookie-settings]:hover{text-decoration:underline}
 .cookie-banner-inner{width:min(1160px,calc(100% - 40px));margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
 .cookie-banner-inner p{margin:0;flex:1 1 380px;font-size:14px;line-height:1.55;color:rgba(252,251,248,.82)}
 .cookie-banner-inner a{color:var(--amber-bright,#FFC94D);text-decoration:underline;text-underline-offset:2px}
@@ -205,26 +207,43 @@
 
 <script>
 (function(){
+  var KEY='sm_cookie_consent';
+  var HS_SRC='https://js-eu1.hs-scripts.com/149291029.js';
+  // HubSpot (Tracking, Analyse) wird erst nach Einwilligung geladen
+  function loadHubSpot(){
+    if(document.getElementById('hs-script-loader')) return;
+    var s=document.createElement('script');
+    s.id='hs-script-loader'; s.async=true; s.defer=true; s.src=HS_SRC;
+    document.body.appendChild(s);
+  }
+  function setGtag(v){
+    if(typeof gtag === 'function'){
+      gtag('consent', 'update', {'ad_storage':v,'ad_user_data':v,'ad_personalization':v,'analytics_storage':v});
+    }
+  }
   try{
-    var KEY='sm_cookie_consent';
+    var state=localStorage.getItem(KEY);
+    if(state==='accepted') loadHubSpot();
     var banner=document.getElementById('cookie-banner');
     if(!banner) return;
-    if(!localStorage.getItem(KEY)){ banner.hidden=false; }
+    if(!state){ banner.hidden=false; }
     var accept=document.getElementById('cookie-accept');
     var decline=document.getElementById('cookie-decline');
     if(accept) accept.addEventListener('click', function(){
       localStorage.setItem(KEY,'accepted');
       banner.hidden=true;
-      if(typeof gtag === 'function'){
-        gtag('consent', 'update', {
-          'ad_storage': 'granted',
-          'ad_user_data': 'granted',
-          'ad_personalization': 'granted',
-          'analytics_storage': 'granted'
-        });
-      }
+      setGtag('granted');
+      loadHubSpot();
     });
-    if(decline) decline.addEventListener('click', function(){ localStorage.setItem(KEY,'declined'); banner.hidden=true; });
+    if(decline) decline.addEventListener('click', function(){
+      var was=localStorage.getItem(KEY);
+      localStorage.setItem(KEY,'declined');
+      banner.hidden=true;
+      setGtag('denied');
+      if(was==='accepted') location.reload();
+    });
+    var links=document.querySelectorAll('[data-cookie-settings]');
+    for(var i=0;i<links.length;i++){ links[i].addEventListener('click', function(){ banner.hidden=false; }); }
   }catch(e){}
 })();
 </script>
