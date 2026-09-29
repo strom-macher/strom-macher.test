@@ -74,9 +74,25 @@
     var statusEl = form.querySelector('.form-status');
     var submitBtn = form.querySelector('button[type="submit"]');
     var defaultStatusText = statusEl ? statusEl.textContent : '';
+    var leistungEl = form.querySelector('#f-leistung');
+    var urgentEl = document.getElementById('form-urgent');
+    function isUrgent() { return !!leistungEl && /Störung/.test(leistungEl.value); }
+    if (leistungEl && urgentEl) {
+      leistungEl.addEventListener('change', function () { urgentEl.hidden = !isUrgent(); });
+    }
+    var successText = 'Danke! Eure Anfrage ist bei uns angekommen – wir melden uns so schnell wie möglich.';
+    var successUrgentText = 'Danke! Eure Meldung ist angekommen. Bei einer akuten Störung ruft bitte zusätzlich unsere Hotline an: +43 664 11 09 721.';
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+
+      // Spam-Schutz: Das unsichtbare Feld füllen nur Bots aus – dann nichts senden.
+      var honeypot = (form.querySelector('#f-firma') || {}).value || '';
+      if (honeypot) {
+        form.reset();
+        if (statusEl) { statusEl.textContent = successText; }
+        return;
+      }
 
       var name = (form.querySelector('#f-name') || {}).value || '';
       var email = (form.querySelector('#f-email') || {}).value || '';
@@ -112,10 +128,10 @@
       })
         .then(function (res) {
           if (!res.ok) { throw new Error('HubSpot-Formular hat mit Status ' + res.status + ' geantwortet.'); }
+          var wasUrgent = isUrgent();
           form.reset();
-          if (statusEl) {
-            statusEl.textContent = 'Danke! Eure Anfrage ist bei uns angekommen – wir melden uns so schnell wie möglich.';
-          }
+          if (urgentEl) { urgentEl.hidden = true; }
+          if (statusEl) { statusEl.textContent = wasUrgent ? successUrgentText : successText; }
         })
         .catch(function (err) {
           console.error('Kontaktformular-Fehler:', err);
