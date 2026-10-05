@@ -64,6 +64,27 @@
     rechne();
   }
 
+  // Kleine „Danke“-Bubble nach erfolgreichem Absenden (verschwindet nach ca. 3 Sekunden von selbst).
+  var toastTimer = null;
+  function showToast(text) {
+    var toast = document.getElementById('sm-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'sm-toast';
+      toast.className = 'toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = text;
+    // Reflow erzwingen, damit die Einblend-Animation auch bei Wiederholung läuft.
+    toast.classList.remove('is-visible');
+    void toast.offsetWidth;
+    toast.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove('is-visible'); }, 3000);
+  }
+
   // Kontaktformular: sendet die Anfrage direkt per HubSpot Forms API,
   // damit zuverlässig genau ein Kontakt im HubSpot-CRM angelegt wird.
   var HUBSPOT_PORTAL_ID = '149291029';
@@ -132,6 +153,7 @@
           form.reset();
           if (urgentEl) { urgentEl.hidden = true; }
           if (statusEl) { statusEl.textContent = wasUrgent ? successUrgentText : successText; }
+          showToast('Danke – wir melden uns!');
         })
         .catch(function (err) {
           console.error('Kontaktformular-Fehler:', err);
