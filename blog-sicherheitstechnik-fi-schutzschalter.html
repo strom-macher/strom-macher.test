@@ -173,7 +173,7 @@
 <script src="script.js" defer></script>
 <div class="cookie-banner" id="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie-Hinweis" hidden>
   <div class="cookie-banner-inner">
-    <p>Wir verwenden notwendige Cookies für den Betrieb der Website. Mit „Alle akzeptieren“ erlaubt ihr zusätzlich Statistik- und Marketing-Cookies (Google Analytics, HubSpot). Eure Auswahl könnt ihr jederzeit unter „Cookie-Einstellungen“ im Fußbereich ändern. Details dazu findet ihr in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+    <p>Wir verwenden notwendige Cookies für den Betrieb der Website. Mit „Alle akzeptieren“ erlaubt ihr zusätzlich Statistik-Cookies (Google Analytics). Eure Auswahl könnt ihr jederzeit unter „Cookie-Einstellungen“ im Fußbereich ändern. Details dazu findet ihr in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
     <div class="cookie-banner-actions">
       <button type="button" class="cookie-btn cookie-btn-decline" id="cookie-decline">Nur notwendige</button>
       <button type="button" class="cookie-btn cookie-btn-accept" id="cookie-accept">Alle akzeptieren</button>
@@ -199,14 +199,6 @@
 <script>
 (function(){
   var KEY='sm_cookie_consent';
-  var HS_SRC='https://js-eu1.hs-scripts.com/149291029.js';
-  // HubSpot (Tracking, Analyse) wird erst nach Einwilligung geladen
-  function loadHubSpot(){
-    if(document.getElementById('hs-script-loader')) return;
-    var s=document.createElement('script');
-    s.id='hs-script-loader'; s.async=true; s.defer=true; s.src=HS_SRC;
-    document.body.appendChild(s);
-  }
   function setGtag(v){
     if(typeof gtag === 'function'){
       gtag('consent', 'update', {'ad_storage':v,'ad_user_data':v,'ad_personalization':v,'analytics_storage':v});
@@ -214,7 +206,6 @@
   }
   try{
     var state=localStorage.getItem(KEY);
-    if(state==='accepted') loadHubSpot();
     var banner=document.getElementById('cookie-banner');
     if(!banner) return;
     if(!state){ banner.hidden=false; }
@@ -224,7 +215,6 @@
       localStorage.setItem(KEY,'accepted');
       banner.hidden=true;
       setGtag('granted');
-      loadHubSpot();
     });
     if(decline) decline.addEventListener('click', function(){
       var was=localStorage.getItem(KEY);

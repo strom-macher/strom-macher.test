@@ -246,81 +246,62 @@
     });
   }
 
-  // Kontaktformular: sendet die Anfrage direkt per HubSpot Forms API,
-  // damit zuverlässig genau ein Kontakt im HubSpot-CRM angelegt wird.
-  var HUBSPOT_PORTAL_ID = '149291029';
-  var HUBSPOT_FORM_GUID = 'bebd2361-682d-40b0-9f6e-90ea78a726a1';
+  // Kontaktformular: sendet die Anfrage direkt in die strom-macher-App (Supabase-Funktion „anfrage“).
+  // Dort: Spam-Prüfung, Eintrag im Vertrieb, Mail ans Büro und Eingangsbestätigung an den Kunden.
+  var ANFRAGE_URL = 'https://wwqzqsaykptvwgrjwsxn.supabase.co/functions/v1/anfrage';
 
   var form = document.getElementById('anfrage');
   if (form) {
+    var shownAt = Date.now();
     var statusEl = form.querySelector('.form-status');
     var submitBtn = form.querySelector('button[type="submit"]');
-    var defaultStatusText = statusEl ? statusEl.textContent : '';
     var leistungEl = form.querySelector('#f-leistung');
     var urgentEl = document.getElementById('form-urgent');
     function isUrgent() { return !!leistungEl && /Störung/.test(leistungEl.value); }
     if (leistungEl && urgentEl) {
       leistungEl.addEventListener('change', function () { urgentEl.hidden = !isUrgent(); });
     }
-    var successText = 'Danke! Eure Anfrage ist bei uns angekommen – wir melden uns so schnell wie möglich.';
+    var successText = 'Danke! Eure Anfrage ist bei uns angekommen. Ihr bekommt gleich eine Bestätigung per E-Mail – wir melden uns spätestens am nächsten Werktag.';
     var successUrgentText = 'Danke! Eure Meldung ist angekommen. Bei einer akuten Störung ruft bitte zusätzlich unsere Hotline an: +43 664 11 09 721.';
+    var failText = 'Das hat leider nicht geklappt. Schreibt uns direkt an pv@strom-macher.at oder ruft an: +43 664 11 09 721.';
+    function val(id) { return ((form.querySelector(id) || {}).value || '').trim(); }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-
-      // Spam-Schutz: Das unsichtbare Feld füllen nur Bots aus – dann nichts senden.
-      var honeypot = (form.querySelector('#f-firma') || {}).value || '';
-      if (honeypot) {
-        form.reset();
-        if (statusEl) { statusEl.textContent = successText; }
+      var data = {
+        name: val('#f-name'), email: val('#f-email'), telefon: val('#f-telefon'), plzort: val('#f-plzort'),
+        leistung: (leistungEl || {}).value || '', nachricht: val('#f-nachricht'), firma: val('#f-firma'),
+        t: Date.now() - shownAt
+      };
+      if (!data.name || !data.email || !data.plzort || !data.nachricht) {
+        if (statusEl) { statusEl.textContent = 'Bitte Name, E-Mail, PLZ und Ort sowie ein paar Worte zur Sache ausfüllen.'; }
         return;
       }
-
-      var name = (form.querySelector('#f-name') || {}).value || '';
-      var email = (form.querySelector('#f-email') || {}).value || '';
-      var telefon = (form.querySelector('#f-telefon') || {}).value || '';
-      var leistung = (form.querySelector('#f-leistung') || {}).value || '';
-      var nachricht = (form.querySelector('#f-nachricht') || {}).value || '';
-
-      name = name.trim();
-      email = email.trim();
-      telefon = telefon.trim();
-      nachricht = nachricht.trim();
-
-      var fields = [
-        { name: 'firstname', value: name },
-        { name: 'email', value: email },
-        { name: 'message', value: 'Worum geht es: ' + leistung + '\n\n' + nachricht }
-      ];
-      if (telefon) { fields.push({ name: 'phone', value: telefon }); }
 
       if (submitBtn) { submitBtn.disabled = true; }
       if (statusEl) { statusEl.textContent = 'Einen Moment, eure Anfrage wird gesendet …'; }
 
-      fetch('https://api.hsforms.com/submissions/v3/integration/submit/' + HUBSPOT_PORTAL_ID + '/' + HUBSPOT_FORM_GUID, {
+      fetch(ANFRAGE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fields: fields,
-          context: {
-            pageUri: window.location.href,
-            pageName: document.title
-          }
-        })
+        body: JSON.stringify(data)
       })
         .then(function (res) {
-          if (!res.ok) { throw new Error('HubSpot-Formular hat mit Status ' + res.status + ' geantwortet.'); }
+          return res.json().catch(function () { return {}; }).then(function (j) {
+            if (!res.ok || !j.ok) { var err = new Error(j.msg || ('Status ' + res.status)); err.userMsg = j.msg; throw err; }
+          });
+        })
+        .then(function () {
           var wasUrgent = isUrgent();
           form.reset();
+          shownAt = Date.now();
           if (urgentEl) { urgentEl.hidden = true; }
           if (statusEl) { statusEl.textContent = wasUrgent ? successUrgentText : successText; }
           showToast('Danke – wir melden uns!');
         })
         .catch(function (err) {
           console.error('Kontaktformular-Fehler:', err);
-          if (statusEl) {
-            statusEl.textContent = 'Das hat leider nicht geklappt. Schreibt uns direkt an pv@strom-macher.at oder ruft an: +43 664 11 09 721.';
-          }
+          if (statusEl) { statusEl.textContent = err.userMsg || failText; }
         })
         .finally(function () {
           if (submitBtn) { submitBtn.disabled = false; }
