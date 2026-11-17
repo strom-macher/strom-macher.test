@@ -603,6 +603,21 @@ a { color: var(--azure-ink); }
 }
 .more-cue:hover .more-cue-arrow { background: var(--red-wash); border-color: var(--red-ink); }
 .more-cue:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+/* Variante im dunklen Hero: mittig wie der Hero, Pfeil vor dem Text */
+.more-cue--hero {
+  flex-direction: row;
+  gap: 12px;
+  margin: 28px auto 0;
+  padding: 6px 12px;
+  text-align: left;
+  color: var(--on-dark);
+}
+.more-cue--hero .more-cue-arrow {
+  border-color: var(--on-dark-2);
+  color: var(--on-dark);
+}
+.more-cue--hero:hover .more-cue-arrow { background: var(--glass-chip); border-color: var(--on-dark); }
+.more-cue--hero:focus-visible { outline-color: var(--focus-dark); }
 @keyframes cue-bob { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(6px); } }
 .hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: -1px; }
 
