@@ -36,9 +36,9 @@
     return out.join("&").slice(0, 400);
   }
 
-  /* ---------- 3. Schritt-für-Schritt-Formular ---------- */
-  var form = document.querySelector(".lead-form");
-  var wizard = form ? initWizard(form) : null;
+  /* ---------- 3. Schritt-für-Schritt-Formular(e) ---------- */
+  // Eine Seite kann mehrere Formulare haben (z. B. Referenz oben, Elektrik unten).
+  var forms = Array.prototype.slice.call(document.querySelectorAll(".lead-form"));
 
   function initWizard(formEl) {
     var steps = Array.prototype.slice.call(formEl.querySelectorAll(".fstep"));
@@ -159,42 +159,44 @@
     return true;
   }
 
-  function allValid() {
+  function allValid(form) {
     var steps = form.querySelectorAll(".fstep");
     for (var i = 0; i < steps.length; i++) if (!stepValid(steps[i], true)) return false;
     return true;
   }
 
   /* ---------- 4. Senden → App, dann Danke-Seite ---------- */
-  function v(name) {
+  function v(form, name) {
     var el = form.querySelector('[name="' + name + '"]:checked') || form.querySelector('[name="' + name + '"]:not([type=radio])');
     return el ? String(el.value || "").trim() : "";
   }
-  function setStatus(msg, isError) {
+  function setStatus(form, msg, isError) {
     var el = form.querySelector(".form-status");
     if (!el) return;
     el.textContent = msg;
     el.classList.toggle("error", !!isError);
   }
 
-  if (form && window.fetch) {
+  forms.forEach(function (form) {
+    var wizard = initWizard(form);
+    if (!window.fetch) return;
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
-      if (!allValid()) { if (wizard) wizard.showInvalid(); else form.reportValidity(); return; }
+      if (!allValid(form)) { if (wizard) wizard.showInvalid(); else form.reportValidity(); return; }
 
       var btn = form.querySelector('button[type="submit"]');
       var label = btn.textContent;
       btn.disabled = true;
       btn.textContent = "Wird gesendet …";
-      setStatus("", false);
+      setStatus(form, "", false);
 
       var data = {
         kampagne: form.getAttribute("data-kampagne") || "",
-        name: v("name"), telefon: v("telefon"), email: v("email"), plzort: v("plzort"),
-        leistung: v("leistung"), nachricht: v("nachricht"),
-        eigentuemer: v("eigentuemer"), dachart: v("dachart"), verbrauch: v("verbrauch"),
+        name: v(form, "name"), telefon: v(form, "telefon"), email: v(form, "email"), plzort: v(form, "plzort"),
+        leistung: v(form, "leistung"), nachricht: v(form, "nachricht"),
+        eigentuemer: v(form, "eigentuemer"), dachart: v(form, "dachart"), verbrauch: v(form, "verbrauch"),
         ort_anzeige: ortOk ? ort : "", herkunft: herkunft(),
-        firma: v("firma"), t: Date.now() - shownAt
+        firma: v(form, "firma"), t: Date.now() - shownAt
       };
 
       fetch(ANFRAGE_URL, {
@@ -213,25 +215,30 @@
         .catch(function (err) {
           btn.disabled = false;
           btn.textContent = label;
-          setStatus(err.userMsg || ("Das hat leider nicht geklappt. Bitte versuchen Sie es noch einmal oder rufen Sie an: " + TEL), true);
+          setStatus(form, err.userMsg || ("Das hat leider nicht geklappt. Bitte versuchen Sie es noch einmal oder rufen Sie an: " + TEL), true);
         });
     });
-  }
+  });
 
-  /* ---------- 5. Leiste unten am Handy: nach dem Hero zeigen, beim Formular ausblenden ---------- */
+  /* ---------- 5. Leiste unten am Handy: nach dem Hero zeigen, bei jedem Formular ausblenden ---------- */
   var sticky = document.querySelector(".sticky-cta");
   var hero = document.querySelector(".hero");
-  var formSection = form ? form.closest("section") : null;
-  if (sticky && hero && formSection && "IntersectionObserver" in window) {
-    var heroVisible = true, formVisible = false;
+  var formSections = forms.map(function (f) { return f.closest("section"); }).filter(Boolean);
+  if (sticky && hero && formSections.length && "IntersectionObserver" in window) {
+    var heroVisible = true, formsVisible = 0;
     var update = function () {
-      var show = !heroVisible && !formVisible;
+      var show = !heroVisible && formsVisible === 0;
       sticky.classList.toggle("visible", show);
       sticky.inert = !show;
     };
     sticky.inert = true;
     new IntersectionObserver(function (e) { heroVisible = e[0].isIntersecting; update(); }, { threshold: 0.1 }).observe(hero);
-    new IntersectionObserver(function (e) { formVisible = e[0].isIntersecting; update(); }, { threshold: 0.15 }).observe(formSection);
+    var fio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { en.target.__vis = en.isIntersecting; });
+      formsVisible = formSections.filter(function (s) { return s.__vis; }).length;
+      update();
+    }, { threshold: 0.15 });
+    formSections.forEach(function (s) { fio.observe(s); });
   }
 
   /* ---------- 6. Einblenden beim Scrollen (respektiert „Bewegung reduzieren“) ---------- */
